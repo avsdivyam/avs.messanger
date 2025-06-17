@@ -50,7 +50,7 @@ export default function DashboardLayout({
         }
           className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 backdrop-blur-md border-b border-white/10"
       />
-      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+      <main className="container-fluid mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
         {children}
       </main>
       </div>
