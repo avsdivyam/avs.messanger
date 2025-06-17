@@ -66,8 +66,8 @@ export default function GroupsPage() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-4 sm:mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">Groups</h1>
-        <p className="text-sm sm:text-base text-gray-300">Manage your group conversations</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-black mb-2">Groups</h1>
+        <p className="text-sm sm:text-base text-black-300">Manage your group conversations</p>
       </div>
 
       <div className="bg-white/10 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-2xl border border-white/20">

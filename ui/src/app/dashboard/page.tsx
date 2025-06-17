@@ -93,7 +93,7 @@ export default function DashboardPage() {
         {/* Chat List Sidebar */}
       <div className="w-full sm:w-1/3 border-r border-white/10 flex flex-col">
         <div className="p-3 sm:p-4 border-b border-white/10">
-          <h2 className="text-base sm:text-lg font-semibold text-white mb-2 sm:mb-3">Messages</h2>
+          <h2 className="text-base sm:text-lg font-semibold text-black mb-2 sm:mb-3">Messages</h2>
             <div className="relative">
               <input
                 type="text"
