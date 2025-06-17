@@ -4,11 +4,14 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/navbar";
 import { Button } from "@/components/button";
+import AuthDialog from "@/components/auth-dialog";
 
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isVisible, setIsVisible] = useState(false);
   const [activeFeature, setActiveFeature] = useState(0);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
 
   useEffect(() => {
     setIsVisible(true);
@@ -103,18 +106,16 @@ export default function Home() {
           ]}
           rightItems={
             <div className="flex items-center gap-2 sm:gap-3 flex-col sm:flex-row w-full sm:w-auto">
-              <Link
-                href="/auth"
-                className="w-full sm:w-auto px-4 sm:px-6 py-2 text-white/90 hover:text-white hover:bg-white/10 rounded-full transition-all duration-300 backdrop-blur-sm border border-white/20 text-center text-sm sm:text-base"
+              <Button
+                onClick={() => {
+                  setAuthMode("login");
+                  setAuthDialogOpen(true);
+                }}
+                className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-white/10 backdrop-blur-sm border border-white/20 text-white rounded-full hover:bg-white/20 transition-all duration-300 font-medium text-center text-sm sm:text-base"
+                variant="secondary" 
               >
-                Sign In
-              </Link>
-              <Link
-                href="/dashboard"
-                className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full hover:from-blue-600 hover:to-purple-700 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 text-center text-sm sm:text-base"
-              >
-                Dashboard
-              </Link>
+               Sign In
+              </Button> 
             </div>
           }
           className="bg-black/20 backdrop-blur-md border-b border-white/10"
@@ -152,13 +153,16 @@ export default function Home() {
             </p>
             
             <div className="flex gap-4 sm:gap-6 justify-center flex-col sm:flex-row mb-12 sm:mb-16 px-4 sm:px-0">
-              <Link
-                href="/auth"
+              <button
+                onClick={() => {
+                  setAuthMode("signup");
+                  setAuthDialogOpen(true);
+                }}
                 className="group px-8 sm:px-10 py-3 sm:py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full hover:from-blue-600 hover:to-purple-700 transition-all duration-300 font-semibold text-base sm:text-lg shadow-2xl hover:shadow-blue-500/25 transform hover:scale-105 relative overflow-hidden"
               >
                 <span className="relative z-10">Get Started Free</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </Link>
+              </button>
               <Link
                 href="/dashboard"
                 className="group px-8 sm:px-10 py-3 sm:py-4 border-2 border-white/30 text-white rounded-full hover:bg-white/10 transition-all duration-300 font-semibold text-base sm:text-lg backdrop-blur-sm transform hover:scale-105"
@@ -398,12 +402,15 @@ export default function Home() {
               Join millions of users who trust our platform for their daily communications
             </p>
             <div className="flex gap-4 sm:gap-6 justify-center flex-col sm:flex-row">
-              <Link
-                href="/auth"
+              <button
+                onClick={() => {
+                  setAuthMode("signup");
+                  setAuthDialogOpen(true);
+                }}
                 className="group px-8 sm:px-10 py-3 sm:py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full hover:from-blue-600 hover:to-purple-700 transition-all duration-300 font-semibold text-base sm:text-lg shadow-2xl hover:shadow-blue-500/25 transform hover:scale-105"
               >
                 Start Messaging Now
-              </Link>
+              </button>
               <Link
                 href="#features"
                 className="px-8 sm:px-10 py-3 sm:py-4 border-2 border-white/30 text-white rounded-full hover:bg-white/10 transition-all duration-300 font-semibold text-base sm:text-lg backdrop-blur-sm"
@@ -478,6 +485,13 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Auth Dialog */}
+      <AuthDialog
+        isOpen={authDialogOpen}
+        onClose={() => setAuthDialogOpen(false)}
+        initialMode={authMode}
+      />
     </div>
   );
 }

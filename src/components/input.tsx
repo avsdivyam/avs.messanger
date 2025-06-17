@@ -6,6 +6,7 @@ interface InputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
   className?: string;
+  placeholder?: string;
 }
 
 export function InputField({
@@ -16,6 +17,7 @@ export function InputField({
   onChange,
   error,
   className = "",
+  placeholder = "",
 }: InputProps) {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
@@ -28,7 +30,8 @@ export function InputField({
         type={type}
         value={value}
         onChange={onChange}
-        className="border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:outline-none focus:border-blue-500"
+        placeholder={placeholder}
+        className="border border-gray-300 rounded-md px-3 py-1 focus:ring-blue-500 focus:outline-none focus:border-blue-500 placeholder:text-sm"
       />
       {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>

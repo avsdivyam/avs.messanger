@@ -47,29 +47,29 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Settings</h1>
-        <p className="text-gray-600">Manage your account preferences and privacy settings</p>
+    <div className="max-w-7xl mx-auto">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">Settings</h1>
+        <p className="text-sm sm:text-base text-gray-300">Manage your account preferences and privacy settings</p>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="flex">
+      <div className="bg-white/10 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+        <div className="flex flex-col lg:flex-row">
           {/* Sidebar */}
-          <div className="w-64 bg-gray-50 border-r border-gray-200">
-            <nav className="p-4 space-y-2">
+          <div className="w-full lg:w-64 bg-white/5 border-b lg:border-b-0 lg:border-r border-white/10">
+            <nav className="p-3 sm:p-4 space-y-1 sm:space-y-2">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                  className={`w-full flex items-center gap-2 sm:gap-3 px-3 py-2 rounded-lg text-left transition-all duration-300 text-sm sm:text-base ${
                     activeTab === tab.id
-                      ? "bg-blue-500 text-white"
-                      : "text-gray-700 hover:bg-gray-200"
+                      ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg"
+                      : "text-gray-300 hover:bg-white/10 hover:text-white"
                   }`}
                 >
-                  <span className="text-lg">{tab.icon}</span>
-                  {tab.label}
+                  <span className="text-base sm:text-lg">{tab.icon}</span>
+                  <span className="font-medium">{tab.label}</span>
                 </button>
               ))}
             </nav>
