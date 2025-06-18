@@ -9,6 +9,7 @@ const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const client_1 = require("@prisma/client");
 const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
+const user_routes_1 = __importDefault(require("./routes/user.routes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 exports.prisma = new client_1.PrismaClient();
@@ -18,4 +19,5 @@ app.get('/', (req, res) => {
     res.send('Hello, World!');
 });
 app.use('/api/auth', auth_routes_1.default);
+app.use('/api/v1/user', user_routes_1.default);
 exports.default = app;

@@ -14,13 +14,19 @@ const generateToken = (payload) => {
     return jsonwebtoken_1.default.sign(payload, JWT_SECRET, { expiresIn: '1d', algorithm: 'HS256' });
 };
 exports.generateToken = generateToken;
-const verifyToken = (token) => {
-    try {
-        return jsonwebtoken_1.default.verify(token, JWT_SECRET);
+const verifyToken = (req, res, next) => {
+    const authHeader = req.headers["authorization"]; // Get entire Authorization header
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ message: "Unauthorized: Missing or invalid token" });
     }
-    catch (error) {
-        console.error('Token verification failed:', error);
-        return null;
+    const token = authHeader.split(" ")[1]; // Extract token part after 'Bearer'
+    try {
+        const decoded = jsonwebtoken_1.default.verify(token, JWT_SECRET); // Validate token
+        req.user = decoded; // Attach user info to request
+        next(); // Move to next middleware or controller
+    }
+    catch (err) {
+        return res.status(403).json({ message: "Invalid or expired token" });
     }
 };
 exports.verifyToken = verifyToken;

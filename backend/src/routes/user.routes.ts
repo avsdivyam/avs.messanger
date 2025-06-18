@@ -6,3 +6,5 @@ const userRouter = Router();
 userRouter.get('/profile/:id', userRoutes.getUser);
 userRouter.put('/profile/:id', userRoutes.updateUser);
 userRouter.delete('/profile/:id', userRoutes.deleteUser)
+
+export default userRouter;

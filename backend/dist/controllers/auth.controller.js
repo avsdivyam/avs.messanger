@@ -35,6 +35,9 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.signup = signup;
 exports.login = login;
+exports.logout = logout;
+exports.changePassword = changePassword;
+exports.resetPassword = resetPassword;
 const AuthService = __importStar(require("../services/auth.service"));
 async function signup(req, res) {
     try {
@@ -74,6 +77,53 @@ async function login(req, res) {
             user: user.user,
             token: user.token
         });
+    }
+    catch (err) {
+        console.log('Error in auth controller', err);
+        const errorMessage = (err instanceof Error) ? err.message : 'An unknown error occurred';
+        res.status(400).send({ message: errorMessage });
+    }
+}
+async function logout(req, res) {
+    try {
+        await AuthService.logout(req.user.id);
+        res.status(200).json({ message: 'User logged out successfully' });
+    }
+    catch (err) {
+        console.log('Error in auth controller', err);
+        const errorMessage = (err instanceof Error) ? err.message : 'An unknown error occurred';
+        res.status(400).send({ message: errorMessage });
+    }
+}
+async function changePassword(req, res) {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        if (!currentPassword || !newPassword) {
+            res.status(400).json({ message: 'Current password and new password are required' });
+            return;
+        }
+        if (newPassword.length < 6) {
+            res.status(400).json({ message: 'New password must be at least 6 characters long' });
+            return;
+        }
+        await AuthService.changePassword(req.user.id, currentPassword, newPassword);
+        res.status(200).json({ message: 'Password changed successfully' });
+    }
+    catch (err) {
+        console.log('Error in auth controller', err);
+        const errorMessage = (err instanceof Error) ? err.message : 'An unknown error occurred';
+        res.status(400).send({ message: errorMessage });
+    }
+}
+async function resetPassword(req, res) {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            res.status(400).json({ message: 'Email is required' });
+            return;
+        }
+        await AuthService.resetPassword(email);
+        res.status(200).json({ message: 'Password reset email sent successfully' });
     }
     catch (err) {
         console.log('Error in auth controller', err);

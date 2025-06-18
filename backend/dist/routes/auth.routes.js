@@ -37,7 +37,13 @@ const express_1 = require("express");
 const AuthController = __importStar(require("../controllers/auth.controller"));
 const router = (0, express_1.Router)();
 // Route for user signup
-router.post('/signup', AuthController.signup);
+router.post('/register', AuthController.signup);
 // Route for user login
 router.post('/login', AuthController.login);
+// Route for user logout
+router.post('/logout', AuthController.logout);
+// Route for changing password
+router.put('/change-password', AuthController.changePassword);
+// Route for resetting password
+router.post('/reset-password', AuthController.resetPassword);
 exports.default = router;
