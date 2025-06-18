@@ -4,7 +4,6 @@ import { createContext, use, useEffect } from 'react';
 import type { AuthService } from '../types/auth.types';
 import { AuthService as AuthServiceImpl } from '../services/auth.service';
 import React from 'react';
-// No router import needed - we'll use window.location for navigation
 import { useCustomToast } from '@/hooks/useCustomToast';
 import {useLocalStorage} from '@/hooks/useLocalStorage';
 
@@ -85,19 +84,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const login = async (email: string, password: string) => {
         setIsLoading(true);
+        setError(null);
         try {
             const response = await authService.login({ email, password });
-            setToken(response.data.token);
-            setStoredToken(response.data.token);
-            setUser(response.data.user);
-            setStoredUser(response.data.user);
-            setIsAuthenticated(true);
-            showToast.success('Login successful');
-            navigateTo('/dashboard');
+            
+            if (response.data && response.data.token) {
+                setToken(response.data.token);
+                setStoredToken(response.data.token);
+                setUser(response.data.user);
+                setStoredUser(response.data.user);
+                setIsAuthenticated(true);
+                showToast.success('Login successful');
+            } else {
+                throw new Error('Invalid response format');
+            }
+            return response.data.message;
         } catch (err) {
-            const errorMessage = (err && typeof err === 'object' && 'message' in err) ? (err as any).message : 'Login failed';
-            setError(errorMessage);
-            showToast.error('Login failed', errorMessage);
+            console.error('AuthContext: Login error', err);
+            const errorMessage = err || 'Login failed';
+            setError(errorMessage ?  (errorMessage as any).message || errorMessage : 'Login failed');
+            showToast.error('Login failed', errorMessage ? (errorMessage as any).message || errorMessage : 'Login failed');
+            return Promise.reject(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -113,7 +120,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUser(null);
             setStoredUser(null);
             showToast.success('Logout successful');
-            navigateTo('/login');
         } catch (err) {
             const errorMessage = (err && typeof err === 'object' && 'message' in err) ? (err as any).message : 'Login failed';
             setError(errorMessage);
@@ -125,17 +131,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const register = async (name: string, email: string, password: string, confirmPassword: string) => {
         setIsLoading(true);
+        setError(null);
         try {
             if (password !== confirmPassword) {
                 throw new Error('Passwords do not match');
             }
             await authService.register({ name, email, password });
             showToast.success('Registration successful');
-            navigateTo('/login');
         } catch (err) {
-            const errorMessage = (err && typeof err === 'object' && 'message' in err) ? (err as any).message : 'Login failed';
-            setError(errorMessage);
-            showToast.error('Login failed', errorMessage);
+            console.error('AuthContext: Registration error', err);
+            const errorMessage = err || 'Registration failed';
+            setError(errorMessage ? (errorMessage as any).message || errorMessage : 'Registration failed');
+            showToast.error('Registration failed', errorMessage ? (errorMessage as any).message || errorMessage : 'Registration failed');
         } finally {
             setIsLoading(false);
         }

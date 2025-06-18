@@ -1,1 +1,30 @@
 node_modules
+/.next/
+/ui/.next/
+/.next/cache
+/.next/server
+/.next/static
+/.vscode-test
+/.cache
+
+# Environment variables
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env
+.env.development
+.env.test
+.env.production
+
+# System files
+.DS_Store
+.idea
+.vscode
+
+# Nuxt build files (if any)
+.nuxt
+.nuxtignore
+.nuxtstate
+.nuxtstate.json
+.nuxt/dist

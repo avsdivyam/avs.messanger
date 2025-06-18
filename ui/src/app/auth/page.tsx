@@ -12,7 +12,7 @@ export default function AuthPage() {
     confirmPassword: "",
     name: ""
   });
-  const { login, register } = useAuth();
+  const { login, register, isLoading, error, clearError } = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -23,12 +23,19 @@ export default function AuthPage() {
 
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
-    if (isLogin) {
-      await login(formData.email, formData.password);
-      // window.location.href = "/dashboard";
-    } else {
-      await register(formData.name, formData.email, formData.password, formData.confirmPassword);
-      window.location.href = "/login";
+    clearError(); // Clear any previous errors
+    
+    try {
+      if (isLogin) {
+        await login(formData.email, formData.password);
+        // Navigation is handled in the auth context
+      } else {
+        await register(formData.name, formData.email, formData.password, formData.confirmPassword);
+        // Navigation is handled in the auth context
+      }
+    } catch (error) {
+      // Error handling is done in the auth context
+      console.error('Form submission error:', error);
     }
   };
 
@@ -62,6 +69,13 @@ export default function AuthPage() {
 
         {/* Auth Form */}
         <div className="bg-white/10 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-2xl p-6 sm:p-8 border border-white/20">
+          {/* Error Display */}
+          {error && (
+            <div className="bg-red-500/20 border border-red-500/30 text-red-100 px-4 py-3 rounded-lg mb-6 backdrop-blur-sm">
+              <p className="text-sm">{error}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {!isLogin && (
               <div>
@@ -145,9 +159,17 @@ export default function AuthPage() {
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 sm:py-3 px-4 rounded-lg hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-300 font-medium text-sm sm:text-base shadow-lg hover:shadow-xl transform hover:scale-105"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 sm:py-3 px-4 rounded-lg hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-300 font-medium text-sm sm:text-base shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {isLogin ? "Sign In" : "Create Account"}
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  {isLogin ? "Signing In..." : "Creating Account..."}
+                </div>
+              ) : (
+                isLogin ? "Sign In" : "Create Account"
+              )}
             </button>
           </form>
 

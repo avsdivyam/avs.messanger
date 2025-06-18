@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "./button";
 import { InputField } from "./input";
 import { useAuth } from "@/lib/auth-context";
+import { useRouter } from "next/navigation";
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -19,7 +20,8 @@ export default function AuthDialog({ isOpen, onClose, initialMode = "login" }: A
     password: "",
     confirmPassword: ""
   });
-  const { login, register } = useAuth();
+  const { login, register, isLoading, error, clearError } = useAuth();
+  const route = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -31,12 +33,19 @@ export default function AuthDialog({ isOpen, onClose, initialMode = "login" }: A
 
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
-    if (mode === "login") {
-      await login(formData.email, formData.password);
-      window.location.href = "/dashboard";
-    } else {
-      await register(formData.name, formData.email, formData.password, formData.confirmPassword);
-      window.location.href = "/login";
+    clearError(); // Clear any previous errors
+    
+    try {
+      if (mode === "login") {
+        const response = await login(formData.email, formData.password);
+        route.push("/dashboard");
+      } else {
+        await register(formData.name, formData.email, formData.password, formData.confirmPassword);
+        route.push("/");
+      }
+    } catch (error) {
+      // Error handling is done in the auth context
+      console.error('Form submission error:', error);
     }
   };
 
@@ -76,6 +85,13 @@ export default function AuthDialog({ isOpen, onClose, initialMode = "login" }: A
                 </p>
               </div>
 
+              {/* Error Display */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+                  <p className="text-sm">{error}</p>
+                </div>
+              )}
+
               {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-5">
                 {mode === "signup" && (
@@ -112,10 +128,18 @@ export default function AuthDialog({ isOpen, onClose, initialMode = "login" }: A
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   variant="primary"
                 >
-                  {mode === "login" ? "Sign In" : "Create Account"}
+                  {isLoading ? (
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      {mode === "login" ? "Signing In..." : "Creating Account..."}
+                    </div>
+                  ) : (
+                    mode === "login" ? "Sign In" : "Create Account"
+                  )}
                 </Button>
               </form>
 

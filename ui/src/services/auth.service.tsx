@@ -1,14 +1,48 @@
 import axios from "axios";
-import useApi from "../context/useApi";
 import type { AuthService as AuthServiceType, RegisterService } from "../types/auth.types";
 
-const API_BASE_URL = process.env.API_ENDPOINT;
-const AUTH_API_URL = process.env.AUTH_API_ENDPOINT;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_ENDPOINT;
+const AUTH_API_URL = process.env.NEXT_PUBLIC_AUTH_API_ENDPOINT;
+
+// Environment variables configured
+
+// Create axios instances directly
+const authApiClient = axios.create({
+  baseURL: AUTH_API_URL,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+});
+
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+});
+
+// Add response interceptors for error handling
+authApiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error('Auth API Error:', error.response?.data || error.message);
+    return Promise.reject(error);
+  }
+);
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error('API Error:', error.response?.data || error.message);
+    return Promise.reject(error);
+  }
+);
 
 const login = async (data: AuthServiceType) => {
   try{
-    const { authApiClient } = useApi();
-    const response = await authApiClient.post(`${AUTH_API_URL}login`, {data});
+    const response = await authApiClient.post(`login`, data);
     return response;
   } catch (error){
     throw error;
@@ -17,8 +51,7 @@ const login = async (data: AuthServiceType) => {
 
 const logout = async () => {
     try{
-        const { authApiClient } = useApi();
-        await authApiClient.post(`${AUTH_API_URL}logout`, {});
+        await authApiClient.post(`logout`, {});
         return "Logout successful";
     } catch (error) {
         throw error;
@@ -27,8 +60,7 @@ const logout = async () => {
 
 const register = async (data: RegisterService) => {
   try{
-    const { authApiClient } = useApi();
-    await authApiClient.post(`${AUTH_API_URL}register`, {data});
+    const response = await authApiClient.post(`register`, data);
     return "Registration successful";
   } catch(error){
     throw error;
@@ -37,8 +69,7 @@ const register = async (data: RegisterService) => {
 
 const changePassword = async (currentPassword: string, newPassword: string) => {
   try {
-    const { authApiClient } = useApi();
-    await authApiClient.post(`${AUTH_API_URL}change-password`, {
+    await authApiClient.post(`change-password`, {
       currentPassword,
       newPassword
     });
@@ -50,8 +81,7 @@ const changePassword = async (currentPassword: string, newPassword: string) => {
 
 const resetPassword = async (email: string) => {
   try {
-    const { authApiClient } = useApi();
-    await authApiClient.post(`${AUTH_API_URL}reset-password`, { email });
+    await authApiClient.post(`reset-password`, { email });
     return "Password reset email sent";
   } catch (error) {
     throw error;
@@ -60,8 +90,7 @@ const resetPassword = async (email: string) => {
 
 const getUser = async (id: number) => {
   try {
-    const { authApiClient } = useApi();
-    const response = await authApiClient.get(`${API_BASE_URL}profile/${id}`);
+    const response = await apiClient.get(`user/profile/${id}`);
     return response.data;
   } catch (error) {
     throw error;
