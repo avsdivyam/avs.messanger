@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "./button";
 import { InputField } from "./input";
+import { useAuth } from "@/lib/auth-context";
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export default function AuthDialog({ isOpen, onClose, initialMode = "login" }: A
     password: "",
     confirmPassword: ""
   });
+  const { login, register } = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -27,16 +29,15 @@ export default function AuthDialog({ isOpen, onClose, initialMode = "login" }: A
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
-    if (mode === "signup" && formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!");
-      return;
+    if (mode === "login") {
+      await login(formData.email, formData.password);
+      window.location.href = "/dashboard";
+    } else {
+      await register(formData.name, formData.email, formData.password, formData.confirmPassword);
+      window.location.href = "/login";
     }
-    // Handle authentication logic here
-    console.log("Auth attempt:", { mode, formData });
-    // Redirect to dashboard on success
-    window.location.href = "/dashboard";
   };
 
   const resetForm = () => {

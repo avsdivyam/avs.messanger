@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@/lib/auth-context";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,6 +12,7 @@ export default function AuthPage() {
     confirmPassword: "",
     name: ""
   });
+  const { login, register } = useAuth();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -19,26 +21,14 @@ export default function AuthPage() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
     if (isLogin) {
-      // Handle login
-      console.log("Login:", { email: formData.email, password: formData.password });
-      // Redirect to dashboard after successful login
-      window.location.href = "/dashboard";
+      await login(formData.email, formData.password);
+      // window.location.href = "/dashboard";
     } else {
-      // Handle signup
-      if (formData.password !== formData.confirmPassword) {
-        alert("Passwords don't match!");
-        return;
-      }
-      console.log("Signup:", { 
-        name: formData.name, 
-        email: formData.email, 
-        password: formData.password 
-      });
-      // Redirect to dashboard after successful signup
-      window.location.href = "/dashboard";
+      await register(formData.name, formData.email, formData.password, formData.confirmPassword);
+      window.location.href = "/login";
     }
   };
 

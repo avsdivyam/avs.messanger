@@ -1,4 +1,14 @@
+import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+
+// Extend Express Request interface to include 'user'
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
+  }
+}
 
 const JWT_SECRET = process.env.JWT_SECRET
 
@@ -8,14 +18,25 @@ if (!JWT_SECRET) {
 export const generateToken = (payload: object): string => {
     return jwt.sign(payload, JWT_SECRET, { expiresIn: '1d', algorithm: 'HS256' });
 };
-export const verifyToken = (token: string): object | null => {
-    try {
-        return jwt.verify(token, JWT_SECRET) as object;
-    } catch (error) {
-        console.error('Token verification failed:', error);
-        return null;
-    }
+
+export const verifyToken = (req: Request, res: Response, next: import('express').NextFunction) => {
+  const authHeader = req.headers["authorization"]; // Get entire Authorization header
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Unauthorized: Missing or invalid token" });
+  }
+
+  const token = authHeader.split(" ")[1]; // Extract token part after 'Bearer'
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET); // Validate token
+    req.user = decoded; // Attach user info to request
+    next(); // Move to next middleware or controller
+  } catch (err) {
+    return res.status(403).json({ message: "Invalid or expired token" });
+  }
 };
+
 export const decodeToken = (token: string): object | null => {
     try {
         return jwt.decode(token) as object;
