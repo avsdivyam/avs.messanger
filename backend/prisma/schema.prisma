@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,22 +7,127 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-    id Int @id @default(autoincrement())
-    email String @unique
-    name String
-    passowrd String
-    createdAt DateTime @default(now())
-    messages Message[]
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  name      String
+  avatar    String?
+  status    String?
+  isOnline  Boolean   @default(false)
+  lastSeen  DateTime?
+  createdAt DateTime  @default(now())
+
+  messages      Message[]         @relation("UserMessages")
+  chats         ChatParticipant[]
+  notifications Notification[]
+  media         Media[]
+  friends       Friend[]          @relation("UserFriends") // users this user added as friend
+  friendOf      Friend[]          @relation("FriendOf") // users who added this user as friend
+  blocked       Block[]           @relation("UserBlocks") // users this user blocked
+  blockedBy     Block[]           @relation("BlockedBy") // users who blocked this user
 }
 
-
-
 model Message {
-  id        Int      @id @default(autoincrement())
+  id        Int           @id @default(autoincrement())
   content   String
   senderId  Int
-  sender    User     @relation(fields: [senderId], references: [id])
+  chatId    Int
+  status    MessageStatus @default(SENT)
+  edited    Boolean       @default(false)
+  deleted   Boolean       @default(false)
+  editedAt  DateTime?
+  deletedAt DateTime?
+  createdAt DateTime      @default(now())
+
+  sender User    @relation("UserMessages", fields: [senderId], references: [id])
+  chat   Chat    @relation(fields: [chatId], references: [id])
+  media  Media[] // optional media attachments
+}
+
+model Chat {
+  id        Int      @id @default(autoincrement())
+  isGroup   Boolean  @default(false)
+  groupName String?
   createdAt DateTime @default(now())
+
+  messages     Message[]
+  participants ChatParticipant[]
+}
+
+model ChatParticipant {
+  id     Int @id @default(autoincrement())
+  userId Int
+  chatId Int
+
+  user User @relation(fields: [userId], references: [id])
+  chat Chat @relation(fields: [chatId], references: [id])
+
+  @@unique([userId, chatId])
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  SEEN
+}
+
+model Media {
+  id         Int       @id @default(autoincrement())
+  url        String // URL to file (e.g., S3, local storage)
+  type       MediaType
+  uploadedAt DateTime  @default(now())
+  messageId  Int?
+  userId     Int
+
+  message Message? @relation(fields: [messageId], references: [id])
+  user    User     @relation(fields: [userId], references: [id])
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  AUDIO
+  FILE
+}
+
+model Notification {
+  id        Int              @id @default(autoincrement())
+  type      NotificationType
+  content   String
+  userId    Int
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+enum NotificationType {
+  MESSAGE
+  FRIEND_REQUEST
+  SYSTEM
+}
+
+model Friend {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  friendId  Int
+  createdAt DateTime @default(now())
+
+  user   User @relation("UserFriends", fields: [userId], references: [id])
+  friend User @relation("FriendOf", fields: [friendId], references: [id])
+
+  @@unique([userId, friendId])
+}
+
+model Block {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  blockedId Int
+  createdAt DateTime @default(now())
+
+  user    User @relation("UserBlocks", fields: [userId], references: [id])
+  blocked User @relation("BlockedBy", fields: [blockedId], references: [id])
+
+  @@unique([userId, blockedId])
 }

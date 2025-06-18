@@ -16,7 +16,7 @@ export async function signup(name: string, email: string, password: string) {
         data: {
             name,
             email,
-            passowrd: hashedPassword,
+            password: hashedPassword,
         }
     });
 
@@ -38,7 +38,7 @@ export async function login(email: string, password: string) {
     if (!user) {
         throw new Error('User not found');
     }
-    const isPasswordValid = bcrypt.compareSync(password, user.passowrd);
+    const isPasswordValid = bcrypt.compareSync(password, user.password);
     if (!isPasswordValid) {
         throw new Error('Invalid password');
     }
@@ -76,14 +76,14 @@ export async function changePassword(userId: number, currentPassword: string, ne
     if (!user) {
         throw new Error('User not found');
     }
-    const isPasswordValid = bcrypt.compareSync(currentPassword, user.passowrd);
+    const isPasswordValid = bcrypt.compareSync(currentPassword, user.password);
     if (!isPasswordValid) {
         throw new Error('Invalid current password');
     }
     const hashedNewPassword = bcrypt.hashSync(newPassword, 10);
     await prisma.user.update({
         where: { id: userId },
-        data: { passowrd: hashedNewPassword },
+        data: { password: hashedNewPassword },
     });
     return { message: 'Password changed successfully' };
 }
